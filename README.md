@@ -1,11 +1,20 @@
 # Constellix DNS Provider
 
+## Disclaimer
+This is a fork of Constellix/terraform-provider-constellix with a small change to env variables and go releaser settings to enable builds on m1 macs.
+
+### Environemnt variables
+```
+CONSTELLIX_API_KEY
+CONSTELLIX_SECRET_KEY
+```
+
 Requirements
 ------------
 
 - [Terraform](https://www.terraform.io/downloads.html) Latest Version
 
-- [Go](https://golang.org/doc/install) go1.13.8
+- [Go](https://golang.org/doc/install) go1.17
 
 ## Building The Provider ##
 Clone this repository to: `$GOPATH/src/github.com/Constellix/terraform-provider-constellix`.
