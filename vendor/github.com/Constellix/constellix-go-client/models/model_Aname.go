@@ -5,6 +5,7 @@ type AnameAttributes struct {
 	TTL                 int               `json:"ttl"`
 	RecordOption        string            `json:"recordOption,omitempty"`
 	NoAnswer            bool              `json:"noAnswer,"`
+	SkipLookup          bool              `json:"skipLookup,"`
 	Note                string            `json:"note,omitempty"`
 	GtdRegion           int               `json:"gtdRegion,omitempty"`
 	Type                string            `json:"type,omitempty"`

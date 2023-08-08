@@ -106,6 +106,11 @@ func resourceConstellixTCPCheck() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"notification_report_timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -138,6 +143,7 @@ func resourceConstellixTCPCheckImport(d *schema.ResourceData, m interface{}) ([]
 	d.Set("interval_policy", data["monitorIntervalPolicy"])
 	d.Set("string_to_send", data["stringToSend"])
 	d.Set("string_to_receive", data["stringToReceive"])
+	d.Set("notification_report_timeout", data["notificationReportTimeout"])
 	log.Printf("[DEBUG] %s finished import", d.Id())
 	return []*schema.ResourceData{d}, nil
 }
@@ -170,6 +176,10 @@ func resourceConstellixTCPCheckCreate(d *schema.ResourceData, m interface{}) err
 
 	if notficationGrp, ok := d.GetOk("notification_groups"); ok {
 		tcpcheckAttr.NotificationGroups = toListOfInt(notficationGrp)
+	}
+
+	if notificationReportTimeout, ok := d.GetOk("notification_report_timeout"); ok {
+		tcpcheckAttr.NotificationReportTimeout = notificationReportTimeout.(int)
 	}
 
 	if interval, ok := d.GetOk("interval"); ok {
@@ -234,6 +244,10 @@ func resourceConstellixTCPCheckUpdate(d *schema.ResourceData, m interface{}) err
 		tcpcheckAttr.NotificationGroups = toListOfInt(notficationGrp)
 	}
 
+	if notificationReportTimeout, ok := d.GetOk("notification_report_timeout"); ok {
+		tcpcheckAttr.NotificationReportTimeout = notificationReportTimeout.(int)
+	}
+
 	if interval, ok := d.GetOk("interval"); ok {
 		tcpcheckAttr.Interval = interval.(string)
 	}
@@ -288,6 +302,7 @@ func resourceConstellixTCPCheckRead(d *schema.ResourceData, m interface{}) error
 	d.Set("interval_policy", data["monitorIntervalPolicy"])
 	d.Set("string_to_send", data["stringToSend"])
 	d.Set("string_to_receive", data["stringToReceive"])
+	d.Set("notification_report_timeout", data["notificationReportTimeout"])
 	return nil
 }
 

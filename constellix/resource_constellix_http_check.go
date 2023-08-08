@@ -53,13 +53,13 @@ func resourceConstellixHTTPCheck() *schema.Resource {
 			},
 
 			"check_sites": &schema.Schema{
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
 				Elem:     &schema.Schema{Type: schema.TypeInt},
 			},
 
 			"notification_groups": &schema.Schema{
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeInt},
@@ -121,6 +121,11 @@ func resourceConstellixHTTPCheck() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"notification_report_timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -157,6 +162,7 @@ func resourceConstellixHTTPCheckImport(d *schema.ResourceData, m interface{}) ([
 	d.Set("path", data["path"])
 	d.Set("search_string", data["searchString"])
 	d.Set("expected_status_code", data["expectedStatusCode"])
+	d.Set("notification_report_timeout", data["notificationReportTimeout"])
 	log.Printf("[DEBUG] %s finished import", d.Id())
 	return []*schema.ResourceData{d}, nil
 }
@@ -187,11 +193,15 @@ func resourceConstellixHTTPCheckCreate(d *schema.ResourceData, m interface{}) er
 	}
 
 	if checksites, ok := d.GetOk("check_sites"); ok {
-		httpcheckAttr.Checksites = checksites.([]interface{})
+		httpcheckAttr.Checksites = checksites.(*schema.Set).List()
 	}
 
-	if notficationGrp, ok := d.GetOk("notification_groups"); ok {
-		httpcheckAttr.NotificationGroups = toListOfInt(notficationGrp)
+	if notificationReportTimeout, ok := d.GetOk("notification_report_timeout"); ok {
+		httpcheckAttr.NotificationReportTimeout = notificationReportTimeout.(int)
+	}
+
+	if notificationGrp, ok := d.GetOk("notification_groups"); ok {
+		httpcheckAttr.NotificationGroups = toListOfInt(notificationGrp.(*schema.Set).List())
 	}
 
 	if interval, ok := d.GetOk("interval"); ok {
@@ -259,11 +269,15 @@ func resourceConstellixHTTPCheckUpdate(d *schema.ResourceData, m interface{}) er
 	}
 
 	if checksites, ok := d.GetOk("check_sites"); ok {
-		httpcheckAttr.Checksites = checksites.([]interface{})
+		httpcheckAttr.Checksites = checksites.(*schema.Set).List()
 	}
 
-	if notficationGrp, ok := d.GetOk("notification_groups"); ok {
-		httpcheckAttr.NotificationGroups = toListOfInt(notficationGrp)
+	if notificationGrp, ok := d.GetOk("notification_groups"); ok {
+		httpcheckAttr.NotificationGroups = toListOfInt(notificationGrp.(*schema.Set).List())
+	}
+
+	if notificationReportTimeout, ok := d.GetOk("notification_report_timeout"); ok {
+		httpcheckAttr.NotificationReportTimeout = notificationReportTimeout.(int)
 	}
 
 	if interval, ok := d.GetOk("interval"); ok {
@@ -330,6 +344,7 @@ func resourceConstellixHTTPCheckRead(d *schema.ResourceData, m interface{}) erro
 	d.Set("path", data["path"])
 	d.Set("search_string", data["searchString"])
 	d.Set("expected_status_code", data["expectedStatusCode"])
+	d.Set("notification_report_timeout", data["notificationReportTimeout"])
 	return nil
 }
 

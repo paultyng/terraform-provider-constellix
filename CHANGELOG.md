@@ -1,3 +1,6 @@
+## 0.4.4 (add skipLookup argument for ANAME resources, cncallaghan)
+- added skipLookup argument for ANAME resources
+
 ## 0.3.1 (Unreleased)
 
 IMPROVEMENTS:

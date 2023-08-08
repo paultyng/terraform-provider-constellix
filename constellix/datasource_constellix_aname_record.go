@@ -79,6 +79,12 @@ func datasourceConstellixAnamerecord() *schema.Resource {
 				Computed: true,
 			},
 
+			"skip_lookup": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
 			"note": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -247,6 +253,7 @@ func datasourceConstellixAnamerecordRead(d *schema.ResourceData, m interface{}) 
 			d.Set("ttl", tp["ttl"])
 			d.Set("record_option", tp["recordOption"])
 			d.Set("noanswer", tp["noAnswer"])
+			d.Set("skip_lookup", tp["skipLookup"])
 			d.Set("note", tp["note"])
 			d.Set("gtd_region", tp["gtdRegion"])
 			d.Set("type", tp["type"])

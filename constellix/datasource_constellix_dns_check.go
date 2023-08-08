@@ -87,6 +87,11 @@ func datasourceConstellixDNSCheck() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"notification_report_timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -125,6 +130,7 @@ func datasourceConstellixDNSCheckRead(d *schema.ResourceData, m interface{}) err
 			d.Set("interval_policy", tp["monitorIntervalPolicy"])
 			d.Set("verification_policy", tp["verificationPolicy"])
 			d.Set("expected_response", tp["expectedResponse"])
+			d.Set("notification_report_timeout", tp["notificationReportTimeout"])
 		}
 	}
 	if flag == false {

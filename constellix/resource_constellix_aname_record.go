@@ -89,6 +89,12 @@ func resourceConstellixANAMERecord() *schema.Resource {
 				Computed: true,
 			},
 
+			"skip_lookup": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
 			"note": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -264,6 +270,7 @@ func resourceConstellixANAMERecordImport(d *schema.ResourceData, m interface{}) 
 	d.Set("source_type", params[0])
 	d.Set("record_option", data["recordOption"])
 	d.Set("noanswer", data["noAnswer"])
+	d.Set("skip_lookup", data["skipLookup"])
 	d.Set("note", data["note"])
 	d.Set("pools", data["pools"])
 	d.Set("gtd_region", data["gtdRegion"])
@@ -296,6 +303,10 @@ func resourceConstellixANAMERecordCreate(d *schema.ResourceData, m interface{}) 
 
 	if noanswer, ok := d.GetOk("noanswer"); ok {
 		anameAttr.NoAnswer = noanswer.(bool)
+	}
+
+	if skip_lookup, ok := d.GetOk("skip_lookup"); ok {
+		anameAttr.SkipLookup = skip_lookup.(bool)
 	}
 
 	if note, ok := d.GetOk("note"); ok {
@@ -478,6 +489,7 @@ func resourceConstellixANAMERecordRead(d *schema.ResourceData, m interface{}) er
 	d.Set("ttl", data["ttl"])
 	d.Set("record_option", data["recordOption"])
 	d.Set("noanswer", data["noAnswer"])
+	d.Set("skip_lookup", data["skipLookup"])
 	d.Set("note", data["note"])
 	d.Set("pools", data["pools"])
 	d.Set("gtd_region", data["gtdRegion"])
@@ -511,6 +523,10 @@ func resourceConstellixANAMERecordUpdate(d *schema.ResourceData, m interface{}) 
 
 	if _, ok := d.GetOk("noanswer"); ok {
 		anameAttr.NoAnswer = d.Get("noanswer").(bool)
+	}
+
+	if _, ok := d.GetOk("skip_lookup"); ok {
+		anameAttr.SkipLookup = d.Get("skip_lookup").(bool)
 	}
 
 	if _, ok := d.GetOk("note"); ok {

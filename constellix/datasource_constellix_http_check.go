@@ -114,6 +114,11 @@ func datasourceConstellixHTTPCheck() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"notification_report_timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -156,6 +161,7 @@ func datasourceConstellixHTTPCheckRead(d *schema.ResourceData, m interface{}) er
 			d.Set("path", tp["path"])
 			d.Set("search_string", tp["searchString"])
 			d.Set("expected_status_code", tp["expectedStatusCode"])
+			d.Set("notification_report_timeout", tp["notificationReportTimeout"])
 		}
 	}
 	if flag != true {

@@ -98,6 +98,11 @@ func resourceConstellixDNSCheck() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"notification_report_timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -131,6 +136,7 @@ func resourceConstellixDNSCheckImport(d *schema.ResourceData, m interface{}) ([]
 	d.Set("interval_policy", data["monitorIntervalPolicy"])
 	d.Set("verification_policy", data["verificationPolicy"])
 	d.Set("expected_response", data["expectedResponse"])
+	d.Set("notification_report_timeout", data["notificationReportTimeout"])
 	log.Printf("[DEBUG] %s finished import", d.Id())
 	return []*schema.ResourceData{d}, nil
 }
@@ -163,6 +169,10 @@ func resourceConstellixDNSCheckCreate(d *schema.ResourceData, m interface{}) err
 
 	if interval, ok := d.GetOk("interval"); ok {
 		dnsAttr.Interval = interval.(string)
+	}
+
+	if notificationReportTimeout, ok := d.GetOk("notification_report_timeout"); ok {
+		dnsAttr.NotificationReportTimeout = notificationReportTimeout.(int)
 	}
 
 	if interval_policy, ok := d.GetOk("interval_policy"); ok {
@@ -229,6 +239,7 @@ func resourceConstellixDNSCheckRead(d *schema.ResourceData, m interface{}) error
 	d.Set("interval_policy", data["monitorIntervalPolicy"])
 	d.Set("verification_policy", data["verificationPolicy"])
 	d.Set("expected_response", data["expectedResponse"])
+	d.Set("notification_report_timeout", data["notificationReportTimeout"])
 	return nil
 }
 
@@ -263,6 +274,10 @@ func resourceConstellixDNSCheckUpdate(d *schema.ResourceData, m interface{}) err
 
 	if expected_response, ok := d.GetOk("expected_response"); ok {
 		dnsAttr.ExpectedResponse = expected_response.(string)
+	}
+
+	if notificationReportTimeout, ok := d.GetOk("notification_report_timeout"); ok {
+		dnsAttr.NotificationReportTimeout = notificationReportTimeout.(int)
 	}
 
 	dn := d.Id()
