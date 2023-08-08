@@ -79,6 +79,11 @@ func testAccCheckConstellixCNameConfig_basic(ttl int) string {
 		name = "tempcnamerecord"
 		ttl = "%d"
 		note = "Practice record naptr"
+
+	  geo_location {
+		geo_ip_failover  = true
+		drop             = false
+	  }
 		record_option = "failover"
 	    record_failover_values  {
 			     value = "a."
@@ -92,8 +97,6 @@ func testAccCheckConstellixCNameConfig_basic(ttl int) string {
 			  }
 			   record_failover_failover_type = 1
 			   record_failover_disable_flag = "false"
-			 
-			
 	}
 	`, ttl)
 }

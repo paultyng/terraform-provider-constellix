@@ -53,7 +53,8 @@ func resourceConstellixCNameRecord() *schema.Resource {
 			},
 
 			"geo_location": &schema.Schema{
-				Type: schema.TypeMap,
+				Type:     schema.TypeSet,
+				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"geo_ip_user_region": &schema.Schema{
@@ -80,10 +81,7 @@ func resourceConstellixCNameRecord() *schema.Resource {
 						},
 					},
 				},
-				Optional: true,
-				Computed: true,
 			},
-
 			"record_option": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -190,28 +188,7 @@ func resourceConstellixCNameRecordImport(d *schema.ResourceData, m interface{}) 
 		return nil, err
 	}
 
-	geoloc1 := data["geolocation"]
-	log.Println("GEOLOC VALUE INSIDE READ :", geoloc1)
-
-	geoLocMap := make(map[string]interface{})
-	if geoloc1 != nil {
-		geoloc := geoloc1.(map[string]interface{})
-		if geoloc["geoipFilter"] != nil {
-			geoLocMap["geo_ip_user_region"] = fmt.Sprintf("%v", geoloc["geoipFilter"])
-		}
-		if geoloc["drop"] != nil {
-			geoLocMap["drop"] = fmt.Sprintf("%v", geoloc["drop"])
-		}
-		if geoloc["geoipFailover"] != nil {
-			geoLocMap["geo_ip_failover"] = fmt.Sprintf("%v", geoloc["geoipFailover"])
-		}
-		if geoloc["geoipProximity"] != nil {
-			geoLocMap["geo_ip_proximity"] = fmt.Sprintf("%v", geoloc["geoipProximity"])
-		}
-		d.Set("geo_location", geoLocMap)
-	} else {
-		d.Set("geo_location", geoLocMap)
-	}
+	geoset := parseCGeoResponse(data["geolocation"].(map[string]interface{}))
 
 	rcdf := data["recordFailover"]
 	rcdfset := make(map[string]interface{})
@@ -241,13 +218,14 @@ func resourceConstellixCNameRecordImport(d *schema.ResourceData, m interface{}) 
 	d.Set("domain_id", params[1])
 	d.Set("source_type", params[0])
 	d.Set("ttl", data["ttl"])
+	d.Set("geo_location", geoset)
 	d.Set("record_option", data["recordOption"])
 	d.Set("noanswer", data["noAnswer"])
 	d.Set("note", data["note"])
 	d.Set("gtd_region", data["gtdRegion"])
 	d.Set("type", data["type"])
 	d.Set("pools", data["pools"])
-	d.Set("contact_ids", data["contactIds"])
+	d.Set("contact_ids", data["contactId"])
 	d.Set("record_failover_values", rcdflist)
 	d.Set("record_failover_failover_type", rcdfset["record_failover_failover_type"])
 	d.Set("record_failover_disable_flag", rcdfset["record_failover_disable_flag"])
@@ -292,30 +270,14 @@ func resourceConstellixCNameRecordCreate(d *schema.ResourceData, m interface{}) 
 		aAttr.Pools = toListOfInt(pools)
 	}
 
-	geoloc := &models.GeolocationCrecord{}
-	if geoipuserregion, ok := d.GetOk("geo_location"); ok {
-		geouserlist := make([]int, 0, 1)
-		tp := geoipuserregion.(map[string]interface{})
-		if tp["geo_ip_user_region"] != nil {
-			var1, _ := strconv.Atoi(fmt.Sprintf("%v", tp["geo_ip_user_region"]))
-			geouserlist = append(geouserlist, var1)
-			geoloc.GeoIpUserRegion = geouserlist
-		}
-		if tp["drop"] != nil {
-			geoloc.Drop, _ = strconv.ParseBool(fmt.Sprintf("%v", tp["drop"]))
-		}
-		if tp["geo_ip_failover"] != nil {
-			geoloc.GeoIpFailOver, _ = strconv.ParseBool(fmt.Sprintf("%v", tp["geo_ip_failover"]))
-		}
-		if tp["geo_ip_proximity"] != nil {
-			geoloc.GeoIpProximity, _ = strconv.Atoi(fmt.Sprintf("%v", tp["geo_ip_proximity"]))
-		}
-	}
-	aAttr.GeoLocation = geoloc
+	aAttr.GeoLocation = buildCGeoPayload(d)
 
+	var valuesrcdf *models.ValuesRCDFCrecord
+	var rcdfa *models.RCDFACRecord //added
 	valueslist := make([]interface{}, 0, 1)
 	if value, ok := d.GetOk("record_failover_values"); ok {
-		rcdfa := &models.RCDFACRecord{} //added
+		rcdfa = &models.RCDFACRecord{} //added
+		valuesrcdf = &models.ValuesRCDFCrecord{}
 		tp := value.(*schema.Set).List()
 		for _, val := range tp {
 			map1 := make(map[string]interface{})
@@ -327,19 +289,22 @@ func resourceConstellixCNameRecordCreate(d *schema.ResourceData, m interface{}) 
 			valueslist = append(valueslist, map1)
 		}
 		rcdfa.Values = valueslist
-
-		if failovertype, ok := d.GetOk("record_failover_failover_type"); ok {
-			rcdfa.FailoverTypeRCDFA, _ = strconv.Atoi(fmt.Sprintf("%v", failovertype)) //added
-		}
-
-		if disableflag, ok := d.GetOk("record_failover_disable_flag"); ok {
-			rcdfa.DisableFlagRCDFA, _ = strconv.ParseBool(fmt.Sprintf("%v", disableflag)) //added
-		}
-
-		rcdfa.Values = valueslist     //added
-		aAttr.RecordFailoverA = rcdfa //added
 	}
 
+	if failovertype, ok := d.GetOk("record_failover_failover_type"); ok {
+		rcdfa.FailoverTypeRCDFA, _ = strconv.Atoi(fmt.Sprintf("%v", failovertype)) //added
+	}
+
+	if disableflag, ok := d.GetOk("record_failover_disable_flag"); ok {
+		rcdfa.DisableFlagRCDFA, _ = strconv.ParseBool(fmt.Sprintf("%v", disableflag)) //added
+	}
+
+	if valuesrcdf != nil {
+		rcdfa.Values = valueslist     //added
+		aAttr.RecordFailoverA = rcdfa //added
+	} else {
+		aAttr.RecordFailoverA = nil
+	}
 	resp, err := constellixConnect.Save(aAttr, "v1/"+d.Get("source_type").(string)+"/"+d.Get("domain_id").(string)+"/records/cname")
 
 	if err != nil {
@@ -360,9 +325,9 @@ func resourceConstellixCNameRecordCreate(d *schema.ResourceData, m interface{}) 
 
 func resourceConstellixCNameRecordRead(d *schema.ResourceData, m interface{}) error {
 	constellixClient := m.(*client.Client)
-	arecordid := d.Id()
+	id := d.Id()
 
-	resp, err := constellixClient.GetbyId("v1/" + d.Get("source_type").(string) + "/" + d.Get("domain_id").(string) + "/records/cname/" + arecordid)
+	resp, err := constellixClient.GetbyId("v1/" + d.Get("source_type").(string) + "/" + d.Get("domain_id").(string) + "/records/cname/" + id)
 	if err != nil {
 		if resp.StatusCode == 404 {
 			d.SetId("")
@@ -381,28 +346,7 @@ func resourceConstellixCNameRecordRead(d *schema.ResourceData, m interface{}) er
 		return err
 	}
 
-	geoloc1 := data["geolocation"]
-	log.Println("GEOLOC VALUE INSIDE READ :", geoloc1)
-
-	geoLocMap := make(map[string]interface{})
-	if geoloc1 != nil {
-		geoloc := geoloc1.(map[string]interface{})
-		if geoloc["geoipFilter"] != nil {
-			geoLocMap["geo_ip_user_region"] = fmt.Sprintf("%v", geoloc["geoipFilter"])
-		}
-		if geoloc["drop"] != nil {
-			geoLocMap["drop"] = fmt.Sprintf("%v", geoloc["drop"])
-		}
-		if geoloc["geoipFailover"] != nil {
-			geoLocMap["geo_ip_failover"] = fmt.Sprintf("%v", geoloc["geoipFailover"])
-		}
-		if geoloc["geoipProximity"] != nil {
-			geoLocMap["geo_ip_proximity"] = fmt.Sprintf("%v", geoloc["geoipProximity"])
-		}
-		d.Set("geo_location", geoLocMap)
-	} else {
-		d.Set("geo_location", geoLocMap)
-	}
+	geoset := parseCGeoResponse(data["geolocation"].(map[string]interface{}))
 
 	rcdf := data["recordFailover"]
 	rcdfset := make(map[string]interface{})
@@ -430,13 +374,14 @@ func resourceConstellixCNameRecordRead(d *schema.ResourceData, m interface{}) er
 	d.Set("host", data["host"])
 	d.Set("name", data["name"])
 	d.Set("ttl", data["ttl"])
+	d.Set("geo_location", geoset)
 	d.Set("record_option", data["recordOption"])
 	d.Set("noanswer", data["noAnswer"])
 	d.Set("note", data["note"])
 	d.Set("gtd_region", data["gtdRegion"])
 	d.Set("type", data["type"])
 	d.Set("pools", data["pools"])
-	d.Set("contact_ids", data["contactIds"])
+	d.Set("contact_ids", data["contactId"])
 	d.Set("record_failover_values", rcdflist)
 	d.Set("record_failover_failover_type", rcdfset["record_failover_failover_type"])
 	d.Set("record_failover_disable_flag", rcdfset["record_failover_disable_flag"])
@@ -482,30 +427,14 @@ func resourceConstellixCNameRecordUpdate(d *schema.ResourceData, m interface{}) 
 		aAttr.Pools = toListOfInt(pools)
 	}
 
-	geoloc := &models.GeolocationCrecord{}
-	if geoipuserregion, ok := d.GetOk("geo_location"); ok {
-		geouserlist := make([]int, 0, 1)
-		tp := geoipuserregion.(map[string]interface{})
-		if tp["geo_ip_user_region"] != nil {
-			var1, _ := strconv.Atoi(fmt.Sprintf("%v", tp["geo_ip_user_region"]))
-			geouserlist = append(geouserlist, var1)
-			geoloc.GeoIpUserRegion = geouserlist
-		}
-		if tp["drop"] != nil {
-			geoloc.Drop, _ = strconv.ParseBool(fmt.Sprintf("%v", tp["drop"]))
-		}
-		if tp["geo_ip_failover"] != nil {
-			geoloc.GeoIpFailOver, _ = strconv.ParseBool(fmt.Sprintf("%v", tp["geo_ip_failover"]))
-		}
-		if tp["geo_ip_proximity"] != nil {
-			geoloc.GeoIpProximity, _ = strconv.Atoi(fmt.Sprintf("%v", tp["geo_ip_proximity"]))
-		}
-	}
-	aAttr.GeoLocation = geoloc
+	aAttr.GeoLocation = buildCGeoPayload(d)
 
+	var valuesrcdf *models.ValuesRCDFCrecord
+	var rcdfa *models.RCDFACRecord //added
 	valueslist := make([]interface{}, 0, 1)
 	if value, ok := d.GetOk("record_failover_values"); ok {
-		rcdfa := &models.RCDFACRecord{} //added
+		rcdfa = &models.RCDFACRecord{} //added
+		valuesrcdf = &models.ValuesRCDFCrecord{}
 		tp := value.(*schema.Set).List()
 		for _, val := range tp {
 			map1 := make(map[string]interface{})
@@ -517,17 +446,21 @@ func resourceConstellixCNameRecordUpdate(d *schema.ResourceData, m interface{}) 
 			valueslist = append(valueslist, map1)
 		}
 		rcdfa.Values = valueslist
+	}
 
-		if failovertype, ok := d.GetOk("record_failover_failover_type"); ok {
-			rcdfa.FailoverTypeRCDFA, _ = strconv.Atoi(fmt.Sprintf("%v", failovertype)) //added
-		}
+	if failovertype, ok := d.GetOk("record_failover_failover_type"); ok {
+		rcdfa.FailoverTypeRCDFA, _ = strconv.Atoi(fmt.Sprintf("%v", failovertype)) //added
+	}
 
-		if disableflag, ok := d.GetOk("record_failover_disable_flag"); ok {
-			rcdfa.DisableFlagRCDFA, _ = strconv.ParseBool(fmt.Sprintf("%v", disableflag)) //added
-		}
+	if disableflag, ok := d.GetOk("record_failover_disable_flag"); ok {
+		rcdfa.DisableFlagRCDFA, _ = strconv.ParseBool(fmt.Sprintf("%v", disableflag)) //added
+	}
 
+	if valuesrcdf != nil {
 		rcdfa.Values = valueslist     //added
 		aAttr.RecordFailoverA = rcdfa //added
+	} else {
+		aAttr.RecordFailoverA = nil
 	}
 
 	arecordid := d.Id()
@@ -550,4 +483,61 @@ func resourceConstellixCNameRecordDelete(d *schema.ResourceData, m interface{}) 
 	}
 	d.SetId("")
 	return err
+}
+
+// parseCGeoResponse reads the description of a geolocation returned
+// by the API as part of a CNAME record resource, and returns
+// a map with string values that conforms to the schema
+func parseCGeoResponse(g map[string]interface{}) []interface{} {
+	log.Println("GEOLOC VALUE: ", g)
+	geo := make([]interface{}, 0, 1)
+	if g != nil {
+		m := make(map[string]interface{})
+		if v, ok := g["geoipFilter"]; ok {
+			m["geo_ip_user_region"], _ = strconv.Atoi(fmt.Sprintf("%v", v))
+		}
+		if v, ok := g["drop"]; ok {
+			m["drop"] = fmt.Sprintf("%v", v)
+		}
+		if v, ok := g["geoipProximity"]; ok {
+			m["geo_ip_proximity"], _ = strconv.Atoi(fmt.Sprintf("%v", v))
+		}
+		if v, ok := g["geoipFailover"]; ok {
+			m["geo_ip_failover"] = fmt.Sprintf("%v", v)
+		}
+		geo = append(geo, m)
+	}
+	return geo
+}
+
+func buildCGeoPayload(d *schema.ResourceData) *models.GeolocationCrecord {
+	var geoloc models.GeolocationCrecord
+	userRegion := make([]int, 0, 1)
+	if v, ok := d.GetOk("geo_location"); ok {
+		vs := v.(*schema.Set).List()
+
+		for _, vs := range vs {
+
+			inner := vs.(map[string]interface{})
+			if val, ok := inner["geo_ip_user_region"]; ok {
+				i, _ := strconv.Atoi(fmt.Sprintf("%v", val))
+				if i != 0 {
+					userRegion = append(userRegion, i)
+				}
+			}
+			if val, ok := inner["drop"]; ok {
+				geoloc.Drop, _ = strconv.ParseBool(fmt.Sprintf("%v", val))
+			}
+			if val, ok := inner["geo_ip_proximity"]; ok {
+				geoloc.GeoIpProximity, _ = strconv.Atoi(fmt.Sprintf("%v", val))
+			}
+			if val, ok := inner["geo_ip_failover"]; ok {
+				geoloc.GeoIpFailOver, _ = strconv.ParseBool(fmt.Sprintf("%v", val))
+			}
+		}
+	}
+	if len(userRegion) > 0 {
+		geoloc.GeoIpUserRegion = userRegion
+	}
+	return &geoloc
 }
