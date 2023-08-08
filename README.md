@@ -75,3 +75,7 @@ If you want to work on the provider, you'll first need [Go](http://www.golang.or
 
 To compile the provider, run `make build`. This will build the provider with sanity checks present in scripts directory and put the provider binary in `$GOPATH/bin` directory.
 
+# Importing A records
+
+`terraform import "module.dev-hz1[0].module.something.constellix_a_record.something" domains:1035333:32661234`
+Where domains is static, 1035333 is the domain id and 32661234 is the record id.
