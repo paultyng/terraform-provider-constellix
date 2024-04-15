@@ -433,8 +433,18 @@ func resourceConstellixARecordRead(d *schema.ResourceData, m interface{}) error 
 	if err != nil {
 		return err
 	}
+	if len(data) == 0 {
+		// this is to prevent a crash when Constellix doesn't return anything
+		// ..which might be the case when the provider is crashing when there already exists a record..
 
-	geoset := parseAGeoResponse(data["geolocation"].(map[string]interface{}))
+		return nil
+	}
+
+	// this might also fix the plugin crash issue, if the only the georesponse content is empty
+	if geoValue, ok := data["geolocation"]; ok && geoValue != nil {
+		geoset := parseAGeoResponse(geoValue.(map[string]interface{}))
+		d.Set("geo_location", geoset)
+	}
 
 	arecroundrobin := data["roundRobin"].([]interface{})
 	rrlist := make([]interface{}, 0, 1)
@@ -484,7 +494,6 @@ func resourceConstellixARecordRead(d *schema.ResourceData, m interface{}) error 
 	d.SetId(fmt.Sprintf("%.0f", data["id"]))
 	d.Set("name", data["name"])
 	d.Set("ttl", data["ttl"])
-	d.Set("geo_location", geoset)
 	d.Set("record_option", data["recordOption"])
 	d.Set("noanswer", data["noAnswer"])
 	d.Set("note", data["note"])
