@@ -30,6 +30,13 @@ builds:
       goarch: '386'
     - goos: freebsd
       goarch: arm64
+    - goos: windows
+      goarch: arm
+    - goos: windows
+      goarch: arm64
+    - goos: windows
+      goarch: '386'
+
   binary: '{{ .ProjectName }}_v{{ .Version }}'
 archives:
 - format: zip
