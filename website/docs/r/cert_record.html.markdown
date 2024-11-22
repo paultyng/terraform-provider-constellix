@@ -33,23 +33,30 @@ resource "constellix_cert_record" "firstrecord" {
 ```
 
 ## Argument Reference ##
-* `source_type` - (Required) Type of the CERT record. The values which can be applied are "domains" or "templates".
-* `ttl` - (Required) TTL must be in between 0 and 2147483647.
+* `source_type` - (Required) Type of the CERT record. The values which can be applied are `domains` or `templates`.
+* `ttl` - (Required) TTL must be in between `0` and `2147483647`.
 * `name` - (Optional) Name of record. Name should be unique.
-* `noanswer` - (Optional) Shows if record is enabled or disabled. Default is false (Active).
-* `note` - (Optional)Record note.
-* `gtd_region` - (Optional) Shows id of GTD region in which record is to be created. 1 for World (Default). 2 for Europe. 3 for US East. 4 for US West. 5 for Asia Pacific. 6 for Oceania. note: "gtdRegion" from 2 to 6 will be applied only when GTD region is enabled on domain.
+* `noanswer` - (Optional) Shows if record is enabled or disabled. Default is `false` (Active).
+* `note` - (Optional) Record note.
+* `gtd_region` - (Optional) Shows id of GTD region in which record is to be created. note: "gtdRegion" from 2 to 6 will be applied only when GTD region is enabled on domain. 
+  * `1` for World (Default). 
+  * `2` for Europe. 
+  * `3` for US East. 
+  * `4` for US West. 
+  * `5` for Asia Pacific. 
+  * `6` for Oceania.
 * `roundrobin` - (Required) Object.
-* `roundrobin.certificate_type` - (Required) certificateType 0 - 65,535
-* `roundrobin.key_tag` - (Required) 0 - 65,535
-* `roundrobin.disable_flag` - (Optional) disable flag. Default is false
+* `roundrobin.certificate_type` - (Required) certificateType `0` to `65535`.
+* `roundrobin.key_tag` - (Required) Must be between `0` and `65535`.
+* `roundrobin.disable_flag` - (Optional) disable flag. Default is `false`.
 * `roundrobin.certificate` - (Required) certificate.
-* `roundrobin.algorithm` - (Required) 0-255.
-* `type` - (Optional) Record type CERT.
+* `roundrobin.algorithm` - (Required) Must be between `0` and `255`.
+* `type` - (Optional) Record type `CERT`.
 
 
 ## Attributes Reference
-The only attribute that this resource exports is the `id`, which is set to the constellix calculated id of the CERT resource.
+This resource exports the following attributes:
+* `id` - The constellix calculated id of the CERT resource.
 
 ## Importing ##
 

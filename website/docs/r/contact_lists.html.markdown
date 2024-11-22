@@ -23,10 +23,11 @@ resource "constellix_contact_lists" "contactlist1" {
 
 ## Argument Reference ##
 * `name` - (Required) Name of record. Name should be unique.
-* `email_addresses` - (Required) List of email addresses
+* `email_addresses` - (Required) List of email addresses.
 
 ## Attribute Reference ##
-No attributes are exported
+This resource exports the following attributes:
+* `id` - The constellix calculated id of the Contact List resource.
 
 ## Importing ##
 

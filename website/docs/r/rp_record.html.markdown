@@ -37,21 +37,28 @@ resource "constellix_rp_record" "rp1" {
 ```
 
 ## Argument Reference ##
-* `domain_id` - (Required) Record id of RP record
-* `ttl` - (Required) TTL must be in between 0 and 2147483647
-* `source_type` - (Required) "domains" for Domain records and "template" for Template records
-* `roundrobin` - (Required) Set
-* `roundrobin.mailbox` - (Required) A mailbox for the responsible person of the domain
-* `roundrobin.txt` - (Required) A hostname for the responsible person of the domain
-* `roundrobin.disable_flag` - (Optional) Enable or Disable the roundrobin object. Default is false. Atleast one roundrobin object should be false.
+* `domain_id` - (Required) Record id of RP record.
+* `ttl` - (Required) TTL must be in between `0` and `2147483647`.
+* `source_type` - (Required) `domains` for Domain records and `template` for Template records.
+* `roundrobin` - (Required) Set.
+* `roundrobin.mailbox` - (Required) A mailbox for the responsible person of the domain.
+* `roundrobin.txt` - (Required) A hostname for the responsible person of the domain.
+* `roundrobin.disable_flag` - (Optional) Enable or Disable the roundrobin object. Default is `false`. At least one roundrobin object should be false.
 * `name` - (Optional) Name of record. Name should be unique.
-* `noanswer` - (Optional) Shows if record is enabled or disabled. Default is false (Active)
-* `note` - (Optional) Record note
-* `gtd_region` - (Optional) Shows id of GTD region in which record is to be created, 1 for World (Default), 2 for Europe, 3 for US East, 4 for US West, 5 for Asia Pacific, 6 for Oceania, note: "gtdRegion" from 2 to 6 will be applied only when GTD region is enabled on domain.
-* `type` - (Optional) Record type RP
+* `noanswer` - (Optional) Shows if record is enabled or disabled. Default is `false` (Active).
+* `note` - (Optional) Record note.
+* `gtd_region` - (Optional) Shows id of GTD region in which record is to be created. note: "gtdRegion" from 2 to 6 will be applied only when GTD region is enabled on domain. 
+  * `1` for World (Default). 
+  * `2` for Europe. 
+  * `3` for US East. 
+  * `4` for US West. 
+  * `5` for Asia Pacific. 
+  * `6` for Oceania.
+* `type` - (Optional) Record type `RP`.
 
 ## Attribute Reference ##
-The only attribute that this resource exports is the `id`, which is set to the constellix calculated id of rp resource.
+This resource exports the following attributes:
+* `id` - The constellix calculated id of rp resource.
 
 ## Importing ##
 

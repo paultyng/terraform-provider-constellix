@@ -32,20 +32,27 @@ resource "constellix_ns_record" "firstrecord" {
 ```
 
 ## Argument Reference ##
-* `domain_id` - (Required) Record id of NS record
-* `source_type` - (Required) Type of the NS record. The values which can be applied are "domains" or "templates".
-* `ttl` - (Required) TTL must be in between 0 and 2147483647.
+* `domain_id` - (Required) Record id of NS record.
+* `source_type` - (Required) Type of the NS record. The values which can be applied are `domains` or `templates`.
+* `ttl` - (Required) TTL must be in between `0` and `2147483647`.
 * `name` - (Optional) Name of record. Name should be unique.
-* `noanswer` - (Optional) Shows if record is enabled or disabled. Default is false (Active).
+* `noanswer` - (Optional) Shows if record is enabled or disabled. Default is `false` (Active).
 * `note` - (Optional)Record note.
-* `gtd_region` - (Optional) Shows id of GTD region in which record is to be created. 1 for World (Default). 2 for Europe. 3 for US East. 4 for US West. 5 for Asia Pacific. 6 for Oceania. note: "gtdRegion" from 2 to 6 will be applied only when GTD region is enabled on domain.
-* `type` - (Optional) Record type NS.
+* `gtd_region` - (Optional) Shows id of GTD region in which record is to be created. note: "gtdRegion" from 2 to 6 will be applied only when GTD region is enabled on domain. 
+  * `1` for World (Default). 
+  * `2` for Europe. 
+  * `3` for US East. 
+  * `4` for US West. 
+  * `5` for Asia Pacific. 
+  * `6` for Oceania.
+* `type` - (Optional) Record type `NS`.
 * `roundrobin` - (Required) Set.
 * `roundrobin.value` - (Required) This will be the host name for the name server, for example ns0.nameserver.com. It is important to note, the domain name is automatically appended to the end of this field unless it ends with a dot (.).
-* `roundrobin.disable_flag` - (Required) disable flag. Default is false
+* `roundrobin.disable_flag` - (Required) disable flag. Default is `false`.
 
 ## Attributes Reference
-The only attribute that this resource exports is the `id`, which is set to the constellix calculated id of the NS resource.
+This resource exports the following attributes:
+* `id` - The constellix calculated id of the NS resource.
 
 ## Importing ##
 

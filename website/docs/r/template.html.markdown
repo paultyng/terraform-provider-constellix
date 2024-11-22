@@ -30,7 +30,8 @@ resource "constellix_template" "firsttemplate" {
 * `version` - (Optional) System generated template history version.
 
 ## Attributes Reference
-No attributes are exported.
+This resource exports the following attributes:
+* `id` - The constellix calculated id of the template resource.
 
 ## Importing ##
 

@@ -23,6 +23,12 @@ func datasourceConstellixDomain() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"disabled": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
 			"has_gtd_regions": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -160,6 +166,9 @@ func datasourceConstellixDomainRead(d *schema.ResourceData, m interface{}) error
 			d.SetId(stripQuotes(obj.Index(i).S("id").String()))
 			d.Set("name", stripQuotes(obj.Index(i).S("name").String()))
 			d.Set("soa", soaset)
+			if disabled, err := strconv.ParseBool(stripQuotes(obj.Index(i).S("disabled").String())); err == nil {
+				d.Set("disabled", disabled)
+			}
 			if hasGeoIP, err := strconv.ParseBool(stripQuotes(obj.Index(i).S("hasGeoIP").String())); err == nil {
 				d.Set("has_geoip", hasGeoIP)
 			}

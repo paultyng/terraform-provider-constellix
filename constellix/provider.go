@@ -15,20 +15,20 @@ func Provider() terraform.ResourceProvider {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "API key for HTTP call",
-				DefaultFunc: schema.EnvDefaultFunc("CONSTELLIX_API_KEY", nil),
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{"apikey", "CONSTELLIX_API_KEY"}, nil),
 			},
 
 			"secretkey": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Secret Key for HMAC",
-				DefaultFunc: schema.EnvDefaultFunc("CONSTELLIX_SECRET_KEY", nil),
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{"secretkey", "CONSTELLIX_SECRET_KEY"}, nil),
 			},
 
 			"insecure": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: "Allows insecure HTTTPS client",
+				Description: "Allows insecure HTTPS client",
 			},
 
 			"proxyurl": &schema.Schema{

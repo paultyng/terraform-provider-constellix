@@ -31,21 +31,28 @@ resource "constellix_http_redirection_record" "http1" {
 ```
 
 ## Argument Reference ##
-* `ttl` - (Required) TTL must be in between 0 and 2147483647
-* `url` - (Required) URL link to redirect
-* `redirect_type_id` - (Required) 1 for Standard - 302, 2 for Hidden Frame Masked and 3 for Standard - 301. 
-* `source_type` - (Required) "domains" for Domain records and "template" for Template records
+* `ttl` - (Required) TTL must be in between `0` and `2147483647`.
+* `url` - (Required) URL link to redirect.
+* `redirect_type_id` - (Required) `1` for Standard - 302, `2` for Hidden Frame Masked and `3` for Standard - 301. 
+* `source_type` - (Required) `domains` for Domain records and `template` for Template records.
 * `name` - (Optional) Name of record. Name should be unique.
-* `noanswer` - (Optional) Shows if record is enabled or disabled. Default is false (Active)
-* `note` - (Optional) Record note
-* `hardlink_flag` - (Optional) Hardlink flag. Default is false
-* `description` - (Optional) Description
-* `title` - (Optional) Title of redirection
-* `gtd_region` - (Optional) Shows id of GTD region in which record is to be created, 1 for World (Default), 2 for Europe, 3 for US East, 4 for US West, 5 for Asia Pacific, 6 for Oceania, note: "gtdRegion" from 2 to 6 will be applied only when GTD region is enabled on domain.
-* `type` - (Optional) Record type HTTP Redirection
+* `noanswer` - (Optional) Shows if record is enabled or disabled. Default is `false` (Active).
+* `note` - (Optional) Record note.
+* `hardlink_flag` - (Optional) Hardlink flag. Default is `false`
+* `description` - (Optional) Description.
+* `title` - (Optional) Title of redirection.
+* `gtd_region` - (Optional) Shows id of GTD region in which record is to be created. note: "gtdRegion" from 2 to 6 will be applied only when GTD region is enabled on domain. 
+  * `1` for World (Default). 
+  * `2` for Europe. 
+  * `3` for US East. 
+  * `4` for US West. 
+  * `5` for Asia Pacific. 
+  * `6` for Oceania.
+* `type` - (Optional) Record type `HTTPRedirection`.
 
 ## Attribute Reference ##
-The only attribute that this resource exports is the `id`, which is set to the constellix calculated id of httpredirection resource.
+This resource exports the following attributes:
+* `id` - The constellix calculated id of httpredirection resource.
 
 ## Importing ##
 

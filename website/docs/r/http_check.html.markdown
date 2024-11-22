@@ -24,7 +24,7 @@ resource "constellix_http_check" "first" {
 ```
 
 ## Argument Reference ##
-* `name` - (Required) name of the resource. Name should be unique.
+* `name` - (Required) Name of the resource. Name should be unique.
 * `host` - (Required) Host for the resource, for example "constellix.com". It can be set only once.
 * `ip_version` - (Required) Specifies the version of IP. It can be set only once.
 * `port` - (Required) Specifies the port number.
@@ -40,7 +40,8 @@ resource "constellix_http_check" "first" {
 * `expected_status_code` - (Optional) Expected HTTP status code for this check.
 
 ## Attribute Reference ##
-The only attribute that this resource exports is the `id`, which is set to the constellix calculated id of HTTP check resource.
+This resource exports the following attributes:
+* `id` - The constellix calculated id of HTTP check resource.
 
 ## Importing ##
 
